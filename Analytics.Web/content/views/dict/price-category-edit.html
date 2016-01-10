@@ -1,0 +1,21 @@
+﻿<form role="form" class="form-horizontal" name="priceCategoryForm">
+	<fieldset>
+		<legend>Категория наценок</legend>
+
+		<div class="form-group" ng-class="{'has-error': priceCategoryForm.name.$invalid}">
+			<label class="col-md-2 control-label">Название</label>
+			<div class="col-md-6">
+				<input type="text" class="form-control" name="name" required="" ng-model="priceCategory.name" />
+			</div>
+		</div>
+	</fieldset>
+	<div class="form-actions">
+		<a class="btn btn-default" btn-back>
+			Отмена
+		</a>
+		<a class="btn btn-primary" ng-click="save(priceCategory)" ng-disabled="priceCategoryForm.$invalid || priceCategoryForm.$pristine">
+			<i class="fa fa-save"></i>
+			Сохранить
+		</a>
+	</div>
+</form>

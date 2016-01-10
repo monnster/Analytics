@@ -1,0 +1,83 @@
+﻿<h3>
+	Продукция
+	<a type="button" class="btn btn-sm btn-success toolbar-inline" ui-sref="int.product.new">
+		<i class="fa fa-plus"></i>
+		Добавить
+	</a>
+</h3>
+<form role="form" class="form-horizontal" name="filterForm">
+	<fieldset>
+		<legend>Поиск по условиям</legend>
+
+		<div class="form-group">
+			<label class="col-md-2 control-label">Название</label>
+			<div class="col-md-6">
+				<input type="text" class="form-control" name="name" ng-model="filter.name"/>
+			</div>
+		</div>
+		<div class="form-group">
+			<label class="col-md-2 control-label">Производитель</label>
+			<div class="col-md-6">
+				<select class="form-control" name="manufacturer" ng-model="manufacturer"
+				        ng-options="m as m.name for m in manufacturers track by m.manufacturerId"
+						ng-change="setManufacturer(manufacturer)"></select>
+			</div>
+		</div>
+		<div class="form-group">
+			<label class="col-md-2 control-label">Тип сплава</label>
+			<div class="col-md-6">
+				<select class="form-control" name="alloyType" ng-model="filter.alloyType" ng-options="k as v for (k, v) in alloyTypes"></select>
+			</div>
+		</div>
+		<div class="form-group">
+			<label class="col-md-2 control-label">Тип проката</label>
+			<div class="col-md-6">
+				<select class="form-control" name="rollType" ng-model="filter.rollType" ng-options="k as v for (k, v) in rollTypes"></select>
+			</div>
+		</div>
+		<div class="form-group">
+			<label class="col-md-2 control-label">Толщина</label>
+			<div class="col-md-6">
+				<input type="number" step="1" class="form-control" name="thickness" min="1" ng-model="filter.thickness" />
+			</div>
+		</div>
+	</fieldset>
+	<div class="form-actions">
+		<a class="btn btn-sm btn-default" btn-back>
+			Назад
+		</a>
+		<a class="btn btn-sm btn-primary" ng-click="filterProducts(filter)">
+			<i class="fa fa-filter"></i>
+			Применить
+		</a>
+	</div>
+</form>
+
+<div class="toolbar">
+	<!--empty-->
+</div>
+
+
+<table class="table table-bordered table-striped">
+	<tr>
+		<th>Производитель</th>
+		<th>Название</th>
+		<th>Материал</th>
+		<th>Тип сплава</th>
+		<th>Тип проката</th>
+		<th>Толщина</th>
+		<th>Действия</th>
+	</tr>
+	<tr ng-repeat="product in products | orderBy:'name'">
+		<td ng-bind="product.manufacturerName"></td>
+		<td ng-bind="product.name"></td>
+		<td ng-bind="product.rawMaterialTypeName"></td>
+		<td ng-bind="product.alloyType|list:alloyTypes"></td>
+		<td ng-bind="product.rollType|list:rollTypes"></td>
+		<td ng-bind="product.thickness"></td>
+		<td>
+			<a class="btn btn-xs btn-primary" ui-sref="int.product.edit({id: product.productId})">Редактировать</a>
+			<a class="btn btn-xs btn-danger" ng-click="delete(product)">Удалить</a>
+		</td>
+	</tr>
+</table>

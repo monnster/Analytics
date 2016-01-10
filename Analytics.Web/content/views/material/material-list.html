@@ -1,0 +1,66 @@
+﻿<div class="toolbar">
+	<form role="form" class="form-horizontal" name="filterForm">
+		<fieldset>
+			<legend>Фильтр</legend>
+
+			<div class="form-group" ng-class="{'has-error': filterForm.manufacturer.$invalid}">
+				<label class="col-md-2 control-label">Производитель</label>
+				<div class="col-md-6">
+					<select class="form-control" name="manufacturer" required="" ng-model="manufacturer"
+					        ng-options="m as m.name for m in manufacturers|primary track by m.manufacturerId"
+					        ng-change="reload()"></select>
+				</div>
+			</div>
+			<div class="form-group" ng-if="manufacturer.manufacturerId">
+				<label class="col-md-2 control-label">Тип сплава</label>
+				<div class="col-md-6">
+					<select class="form-control" name="alloyType" ng-model="filter.alloyType" ng-options="k as v for (k, v) in alloyTypes">
+						<option value=""></option>
+					</select>
+				</div>
+			</div>
+			<div class="form-group" ng-if="manufacturer.manufacturerId">
+				<label class="col-md-2 control-label">Тип проката</label>
+				<div class="col-md-6">
+					<select class="form-control" name="rollType" ng-model="filter.rollType" ng-options="k as v for (k, v) in rollTypes">
+						<option value=""></option>
+					</select>
+				</div>
+			</div>
+		</fieldset>
+	</form>
+</div>
+<div ng-show="manufacturerId">
+	<div class="toolbar">
+		<a class="btn btn-primary" ng-click="apply(materialTypes)">
+			<i class="fa fa-save"></i>
+			Сохранить
+		</a>
+	</div>
+	
+
+	<table class="table table-bordered table-striped">
+		<tr>
+			<th>Тип материала</th>
+			<th>Производитель</th>
+			<th>Тип сплава</th>
+			<th>Тип проката</th>
+			<th>Толщина</th>
+			<th>
+				<input id="cbSelectAll" type="checkbox" ng-model="selectAll" ng-click="selectAllVisible(selectAll)"/>
+				<label for="cbSelectAll">Выбрать все</label>
+			</th>
+		</tr>
+		<tr ng-repeat="materialType in materialTypes|alloy:filter.alloyType|roll:filter.rollType|orderBy:'name'" ng-class="{'success': materialType.exists}">
+			<td ng-bind="materialType.name"></td>
+			<td ng-bind="manufacturer.name"></td>
+			<td ng-bind="materialType.alloyType|list:alloyTypes"></td>
+			<td ng-bind="materialType.rollType|list:rollTypes"></td>
+			<td ng-bind="materialType.thickness"></td>
+			<td>
+				<input type="checkbox" ng-model="materialType.exists"/>
+				Производится
+			</td>
+		</tr>
+	</table>
+</div>

@@ -1,0 +1,19 @@
+﻿@import url(https://fonts.googleapis.com/css?family=Open+Sans:400,300,300italic,400italic,600,600italic,700,700italic,800,800italic&subset=latin,cyrillic);
+
+body {
+	font-family: 'Open Sans', 'Segoe UI', 'Arial';
+	margin: 40px;
+}
+
+.well {
+	border-radius: 0 !important;
+}
+
+.toolbar {
+	margin-top: 20px;
+	margin-bottom: 20px;
+}
+
+.toolbar-inline {
+	margin-left: 20px;
+}

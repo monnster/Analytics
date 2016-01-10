@@ -1,0 +1,83 @@
+﻿<h3>
+	Прайс-листы
+	<a class="btn btn-sm btn-success toolbar-inline" ui-sref="int.price.add-bulk">
+		<i class="fa fa-plus"></i>
+		Добавить
+	</a>
+</h3>
+
+<form role="form" class="form-horizontal" name="filterForm">
+	<fieldset>
+		<legend>Поиск по условиям</legend>
+
+		<div class="form-group">
+			<label class="col-md-2 control-label">Производитель</label>
+			<div class="col-md-6">
+				<select class="form-control" required="" name="manufacturer" ng-model="filter.manufacturer"
+						ng-options="m as m.name for m in manufacturers track by m.manufacturerId"></select>
+			</div>
+		</div>
+		<div class="form-group">
+			<label class="col-md-2 control-label">Тип сплава</label>
+			<div class="col-md-6">
+				<select class="form-control" required="" name="alloyType" ng-model="filter.alloyType" ng-options="k as v for (k, v) in alloyTypes"></select>
+			</div>
+		</div>
+		<div class="form-group">
+			<label class="col-md-2 control-label">Тип проката</label>
+			<div class="col-md-6">
+				<select class="form-control" required="" name="rollType" ng-model="filter.rollType" ng-options="k as v for (k, v) in rollTypes"></select>
+			</div>
+		</div>
+	</fieldset>
+	<div class="form-actions">
+		<a class="btn btn-sm btn-default" btn-back>
+			Назад
+		</a>
+		<a class="btn btn-sm btn-primary" ng-disabled="filterForm.$invalid || filterForm.$pristine" ng-click="showPricelist(filter)">
+			<i class="fa fa-filter"></i>
+			Применить
+		</a>
+	</div>
+</form>
+<div class="toolbar">
+	<!--empty-->
+</div>
+
+<div class="row">
+	<div class="col-md-9">
+		<table class="table table-bordered table-striped" ng-if="data">
+			<thead>
+				<tr>
+					<th>Название \ Толщина</th>
+					<th ng-repeat="col in data.columns">
+						{{col}}
+					</th>
+				</tr>
+			</thead>
+			<tr ng-repeat="row in data.rows track by $index">
+				<td ng-bind="row"></td>
+				<td ng-repeat="prices in data.prices[$index] track by $index"
+					ng-click="onItemClicked($index, $parent.$index)"
+					ng-class="{'success': $parent.$index == activeCell.y && $index == activeCell.x}">
+					{{prices}}
+				</td>
+			</tr>
+		</table>
+	</div>
+	<div class="col-md-3" ng-show="competitorPrices != null">
+		<h5>Цены конкурентов</h5>
+		<table ng-repeat="cp in competitorPrices track by $index" class="table toolbar">
+			<thead>
+				<tr>
+					<th><strong>{{cp.manufacturerName}}</strong></th>
+				</tr>
+			</thead>
+			<tr ng-class="{'danger': cp.minPrice < activePrice, 'success': cp.minPrice > activePrice}">
+				<td>
+					{{cp.minPrice}}<span ng-if="cp.multipleProducts">&mdash;{{cp.maxPrice}}</span>
+				</td>
+			</tr>
+		</table>
+	</div>
+</div>

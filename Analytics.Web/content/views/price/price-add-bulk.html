@@ -1,0 +1,74 @@
+﻿<div class="toolbar">
+	<form role="form" class="form-horizontal" name="settingsForm">
+		<fieldset>
+			<legend>Добавление цен на продукты</legend>
+
+			<div class="form-group" ng-class="{'has-error': settingsForm.manufacturer.$invalid}">
+				<label class="col-md-2 control-label">Производитель</label>
+				<div class="col-md-6">
+					<select class="form-control" name="manufacturer" required="" ng-model="settings.manufacturer"
+							ng-options="m as m.name for m in manufacturers track by m.manufacturerId"></select>
+				</div>
+			</div>
+			<div class="form-group" ng-class="{'has-error': settingsForm.supplier.$invalid}">
+				<label class="col-md-2 control-label">Поставщик материалов</label>
+				<div class="col-md-6">
+					<select class="form-control" name="supplier" required="" ng-model="settings.supplier"
+							ng-options="m as m.name for m in manufacturers|primary track by m.manufacturerId"></select>
+				</div>
+			</div>
+			<div class="form-group" ng-class="{'has-error': settingsForm.alloyType.$invalid}">
+				<label class="col-md-2 control-label">Тип сплава</label>
+				<div class="col-md-6">
+					<select class="form-control" name="alloyType" required="" ng-model="settings.alloyType" ng-options="k as v for (k, v) in alloyTypes"></select>
+				</div>
+			</div>
+			<div class="form-group" ng-class="{'has-error': settingsForm.rollType.$invalid}">
+				<label class="col-md-2 control-label">Тип проката</label>
+				<div class="col-md-6">
+					<select class="form-control" name="rollType" required="" ng-model="settings.rollType" ng-options="k as v for (k, v) in rollTypes"></select>
+				</div>
+			</div>
+			<div class="form-group" ng-class="{'has-error': settingsForm.priceType.$invalid}">
+				<label class="col-md-2 control-label">Тип цены</label>
+				<div class="col-md-6">
+					<select class="form-control" name="priceType" required="" ng-model="settings.priceType" ng-options="k as v for (k, v) in priceTypes"></select>
+				</div>
+			</div>
+			<div class="form-group" ng-show="settings.priceType == 'priceExtra'" ng-class="{'has-error': settingsForm.priceExtraCategory.$invalid}">
+				<label class="col-md-2 control-label">Наценка</label>
+				<div class="col-md-6">
+					<select class="form-control" name="priceExtraCategory" ng-required="settings.priceType == 'price-extra'" ng-model="settings.priceExtraCategory"
+					        ng-options="m as m.name for m in priceExtraCategories track by m.priceExtraCategoryId"></select>
+				</div>
+			</div>
+			<div class="form-group" ng-class="{'has-error': settingsForm.date.$invalid}">
+				<label class="col-md-2 control-label">Дата</label>
+				<div class="col-md-6">
+					<p class="input-group">
+						<input type="text" class="form-control" datepicker-popup="{{dateFormat}}" ng-model="settings.date" is-open="openedDate" datepicker-options="dateOptions" ng-required="true" close-text="Закрыть" />
+						<span class="input-group-btn">
+							<button class="btn btn-default" ng-click="openDate($event)"><i class="glyphicon glyphicon-calendar"></i></button>
+						</span>
+					</p>
+				</div>
+			</div>
+			<div class="form-group" ng-class="{'has-error': settingsForm.prices.$invalid}">
+				<label class="col-md-2 control-label">Цены</label>
+				<div class="col-md-6">
+					<textarea class="form-control" name="prices" required="" ng-model="settings.prices" ng-change="onPricesEdited()" rows="5"></textarea>
+				</div>
+			</div>
+
+			<div class="form-actions">
+				<a class="btn btn-default" btn-back>
+					Отмена
+				</a>
+				<a class="btn btn-primary" ng-click="parse(settings)" ng-disabled="settingsForm.$invalid || settingsForm.$pristine">
+					<i class="fa fa-save"></i>
+					Сохранить
+				</a>
+			</div>
+		</fieldset>
+	</form>
+</div>

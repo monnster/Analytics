@@ -1,0 +1,51 @@
+﻿<form role="form" class="form-horizontal" name="productForm">
+	<fieldset>
+		<legend>Продукты</legend>
+
+		<div class="form-group" ng-class="{'has-error': productForm.manufacturer.$invalid}">
+			<label class="col-md-2 control-label">Производитель</label>
+			<div class="col-md-6" ng-class="{'has-error': productForm.manufacturer.$invalid}">
+				<select class="form-control" name="manufacturer" required="" ng-model="manufacturer"
+				        ng-options="m as m.name for m in manufacturers track by m.manufacturerId"
+				        ng-change="setManufacturer(manufacturer)"></select>
+			</div>
+		</div>
+		<div class="form-group" ng-class="{'has-error': productForm.supplier.$invalid}">
+			<label class="col-md-2 control-label">Поставщик материала</label>
+			<div class="col-md-6" ng-class="{'has-error': productForm.manufacturer.$invalid}">
+				<select class="form-control" name="supplier" required="" ng-model="supplier"
+				        ng-options="m as m.name for m in manufacturers|primary track by m.manufacturerId"
+						ng-change="setSupplier(supplier)"></select>
+			</div>
+		</div>
+		<div class="form-group" ng-class="{'has-error': productForm.rawMaterial.$invalid}" ng-hide="supplier == null">
+			<label class="col-md-2 control-label">Материал</label>
+			<div class="col-md-6">
+				<select class="form-control" name="rawMaterial" required="" ng-model="rawMaterial"
+						ng-options="rm as rm.name for rm in rawMaterialsFiltered track by rm.rawMaterialId"
+						ng-change="setRawMaterial(rawMaterial)"></select>
+			</div>
+		</div>
+		<div class="form-group" ng-class="{'has-error': productForm.name.$invalid}">
+			<label class="col-md-2 control-label">Название</label>
+			<div class="col-md-6">
+				<input type="text" class="form-control" name="name" required="" ng-model="product.name" />
+			</div>
+		</div>
+		<div class="form-group" ng-class="{'has-error': productForm.thickness.$invalid}">
+			<label class="col-md-2 control-label">Толщина</label>
+			<div class="col-md-6">
+				<input type="number" step="1" class="form-control" name="thickness" readonly="" required="" min="1" ng-model="product.thickness" />
+			</div>
+		</div>
+	</fieldset>
+	<div class="form-actions">
+		<a class="btn btn-default" btn-back>
+			Отмена
+		</a>
+		<a class="btn btn-primary" ng-click="save(product)" ng-disabled="productForm.$invalid || productForm.$pristine">
+			<i class="fa fa-save"></i>
+			Сохранить
+		</a>
+	</div>
+</form>

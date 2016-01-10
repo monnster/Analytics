@@ -1,0 +1,27 @@
+﻿<h3>Продукция</h3>
+<div class="toolbar">
+	<a type="button" class="btn btn-sm btn-primary" ui-sref="int.product.new">
+		<i class="fa fa-plus"></i>
+		Добавить
+	</a>
+</div>
+
+
+<table class="table table-bordered table-striped">
+	<tr>
+		<th>Название</th>
+		<th>Производитель</th>
+		<th>Материал</th>
+		<th>Толщина</th>
+		<th>Действия</th>
+	</tr>
+	<tr ng-repeat="manufacturer in manufacturers | orderBy:'name'">
+		<td ng-bind="manufacturer.name"></td>
+		<td>
+			<input type="checkbox" ng-model="manufacturer.isPrimary" disabled="" />
+		</td>
+		<td>
+			<a class="btn btn-xs btn-primary" ui-sref="int.dict.manufacturer.edit({id: manufacturer.manufacturerId})">Редактировать</a>
+		</td>
+	</tr>
+</table>

@@ -1,0 +1,39 @@
+﻿<form role="form" class="form-horizontal" name="materialTypeForm">
+	<fieldset>
+		<legend>Базовый материал</legend>
+
+		<div class="form-group" ng-class="{'has-error': materialTypeForm.name.$invalid}">
+			<label class="col-md-2 control-label">Название</label>
+			<div class="col-md-6">
+				<input type="text" class="form-control" name="name" required="" ng-model="materialType.name"/>
+			</div>
+		</div>
+		<div class="form-group" ng-class="{'has-error': materialTypeForm.alloyType.$invalid}">
+			<label class="col-md-2 control-label">Тип сплава</label>
+			<div class="col-md-6">
+				<select class="form-control" name="alloyType" required="" ng-model="materialType.alloyType" ng-options="k as v for (k, v) in alloyTypes"></select>
+			</div>
+		</div>
+		<div class="form-group" ng-class="{'has-error': materialTypeForm.rollType.$invalid}">
+			<label class="col-md-2 control-label">Тип проката</label>
+			<div class="col-md-6">
+				<select class="form-control" name="rollType" required="" ng-model="materialType.rollType" ng-options="k as v for (k, v) in rollTypes"></select>
+			</div>
+		</div>
+		<div class="form-group" ng-class="{'has-error': materialTypeForm.thickness.$invalid}">
+			<label class="col-md-2 control-label">Толщина</label>
+			<div class="col-md-6">
+				<input type="number" step="1" class="form-control" name="thickness" required="" min="1" ng-model="materialType.thickness" />
+			</div>
+		</div>
+	</fieldset>
+	<div class="form-actions">
+		<a class="btn btn-default" btn-back>
+			Отмена
+		</a>
+		<a class="btn btn-primary" ng-click="save(materialType)" ng-disabled="materialTypeForm.$invalid || materialTypeForm.$pristine">
+			<i class="fa fa-save"></i>
+			Сохранить
+		</a>
+	</div>
+</form>

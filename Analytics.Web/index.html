@@ -1,0 +1,64 @@
+﻿<!DOCTYPE html>
+<html ng-app="appAnalytics">
+<head>
+	<meta name="charset" value="utf8" />
+	<title>Котики</title>
+
+	<link rel="stylesheet" type="text/css" media="screen" href="content/bootstrap.min.css">
+	<link rel="stylesheet" type="text/css" media="screen" href="content/font-awesome.min.css">
+	<link rel="stylesheet" type="text/css" media="screen" href="content/toastr.min.css">
+	<link rel="stylesheet" type="text/css" media="screen" href="content/styles.css">
+
+	<script src="scripts/lib/jquery/jquery-1.9.1.min.js"></script>
+	<script src="scripts/lib/bootstrap/bootstrap.min.js"></script>
+	<script src="scripts/lib/angular/angular.js"></script>
+	<script src="scripts/lib/angular/angular-sanitize.min.js"></script>
+	<script src="scripts/lib/angular/angular-resource.min.js"></script>
+	<script src="scripts/lib/angular-ui/angular-ui-router.min.js"></script>
+	<script src="scripts/lib/angular-ui/ui-bootstrap.min.js"></script>
+	<script src="scripts/lib/angular-ui/ui-bootstrap-tpls.min.js"></script>
+	<script src="scripts/lib/toastr/toastr.min.js"></script>
+
+	<script src="scripts/services/dialog.js"></script>
+	<script src="scripts/services/dictionary.js"></script>
+	<script src="scripts/services/directory.js"></script>
+	<script src="scripts/services/directives.js"></script>
+	<script src="scripts/services/material.js"></script>
+	<script src="scripts/services/product.js"></script>
+	<script src="scripts/services/price.js"></script>
+	<script src="scripts/controllers/dictionary.js"></script>
+	<script src="scripts/controllers/product.js"></script>
+	<script src="scripts/controllers/material.js"></script>
+	<script src="scripts/controllers/product.js"></script>
+	<script src="scripts/controllers/price.js"></script>
+	<script src="scripts/startup.js"></script>
+</head>
+<body>
+	<div class="row">
+		<div class="col-md-2">
+
+			<ul class="list-group">
+				<li class="list-group-item">
+					<a ui-sref="int.home">Главная</a>
+				</li>
+				<li class="list-group-item">
+					<a ui-sref="int.dict.all">Справочники</a>
+				</li>
+				<li class="list-group-item">
+					<a ui-sref="int.raw-material.list">Материалы</a>
+				</li>
+				<li class="list-group-item">
+					<a ui-sref="int.product.list">Продукты</a>
+				</li>
+				<li class="list-group-item">
+					<a ui-sref="int.price.list">Цены</a>
+				</li>
+			</ul>
+		</div>
+		<div class="col-md-10">
+			<div id="container" ui-view></div>
+		</div>
+	</div>
+
+</body>
+</html>
