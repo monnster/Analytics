@@ -14,7 +14,7 @@
 			<div class="form-group" ng-if="manufacturer.manufacturerId">
 				<label class="col-md-2 control-label">Тип сплава</label>
 				<div class="col-md-6">
-					<select class="form-control" name="alloyType" ng-model="filter.alloyType" ng-options="k as v for (k, v) in alloyTypes">
+					<select class="form-control" name="alloyType" ng-model="filter.alloyType" ng-options="k as v for (k, v) in alloyTypes|mandatory">
 						<option value=""></option>
 					</select>
 				</div>
@@ -22,7 +22,7 @@
 			<div class="form-group" ng-if="manufacturer.manufacturerId">
 				<label class="col-md-2 control-label">Тип проката</label>
 				<div class="col-md-6">
-					<select class="form-control" name="rollType" ng-model="filter.rollType" ng-options="k as v for (k, v) in rollTypes">
+					<select class="form-control" name="rollType" ng-model="filter.rollType" ng-options="k as v for (k, v) in rollTypes|mandatory">
 						<option value=""></option>
 					</select>
 				</div>

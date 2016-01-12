@@ -36,8 +36,13 @@ namespace Analytics.Server.Api.Controllers
 				case PriceType.RawMaterial:
 					StoreMaterialPrices(model);
 					break;
+
+				case PriceType.RetailPrice:
+					StoreRetailPrices(model);
+					break;
 			}
 		}
+
 
 		[Route("api/price/get-price-list")]
 		[HttpPost]
@@ -46,7 +51,8 @@ namespace Analytics.Server.Api.Controllers
 			Argument.NotNull(filter, "Pricelist filter is required.");
 
 			var productNames = new List<string>();
-			var productPrices = new List<decimal[]>();
+			var productPrices = new List<decimal?[]>();
+			var productRetailPrices = new List<decimal?[]>();
 
 			using (var storage = new Storage())
 			{
@@ -87,7 +93,20 @@ namespace Analytics.Server.Api.Controllers
 							})
 						.ToArray();
 
+					var rowRetailPrices = colNames
+						.Select(
+							thickness =>
+							{
+								var product = row.SingleOrDefault(p => p.Thickness == thickness);
+								if (null == product)
+									return 0;
+
+								return ProductService.GetProductRetailPrice(product.ProductId, filter.Date);
+							})
+						.ToArray();
+
 					productPrices.Add(rowPrices);
+					productRetailPrices.Add(rowRetailPrices);
 				}
 
 				return new PricelistModel
@@ -95,6 +114,7 @@ namespace Analytics.Server.Api.Controllers
 					Columns = colNames.Select(p => p.ToString()).ToArray(),
 					Rows = productNames.ToArray(),
 					Prices = productPrices.ToArray(),
+					RetailPrices = productRetailPrices.ToArray(),
 				};
 			}
 		}
@@ -215,6 +235,42 @@ namespace Analytics.Server.Api.Controllers
 				var priceItem = material.PriceItems.Single();
 
 				ProductService.SetMaterialPrice(materialId, model.ManufacturerId, model.Date, priceItem.Price);
+			}
+		}
+
+
+		private void StoreRetailPrices(BulkPriceAddModel model)
+		{
+			var priceExtraResult = ParserService.ParseExtraPricesBulk(
+						model.ManufacturerId,
+						model.SupplierId,
+						model.Date,
+						model.AlloyType,
+						model.RollType,
+						model.PriceExtraCategoryId,
+						model.Prices);
+
+			if (priceExtraResult.Errors.Any())
+			{
+				throw HttpException(HttpStatusCode.BadRequest, priceExtraResult.Errors.Join("<br/>"));
+			}
+
+			foreach (var product in priceExtraResult.Products)
+			{
+				var productId = product.ProductId;
+				if (productId == 0)
+				{
+					productId = ProductService.CreateProduct(
+						product.ManufacturerId,
+						product.RawMaterialId,
+						product.Name,
+						product.Thickness).ProductId;
+				}
+
+				var extra = product.PriceExtras.Single();
+				var priceItem = extra.PriceItems.Single();
+
+				ProductService.SetRetailPrice(productId, model.Date, priceItem.Price);
 			}
 		}
 	}

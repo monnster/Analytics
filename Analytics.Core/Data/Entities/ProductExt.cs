@@ -12,7 +12,7 @@ namespace Analytics.Core.Data.Entities
 		public AlloyType AlloyType { get; set; }
 		public RollType RollType { get; set; }
 		public decimal Thickness { get; set; }
-		public decimal Price { get; set; }
+		public decimal? Price { get; set; }
 		public string Name { get; set; }
 	}
 }

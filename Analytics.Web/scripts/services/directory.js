@@ -26,6 +26,7 @@
 				data.priceTypes = {
 					'rawMaterial': 'Цена за материалы',
 					'priceExtra': 'Наценка',
+					'retailPrice': 'Розничная цена',
 				};
 			
 				return function (key) {

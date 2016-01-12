@@ -20,13 +20,13 @@
 		<div class="form-group">
 			<label class="col-md-2 control-label">Тип сплава</label>
 			<div class="col-md-6">
-				<select class="form-control" required="" name="alloyType" ng-model="filter.alloyType" ng-options="k as v for (k, v) in alloyTypes"></select>
+				<select class="form-control" required="" name="alloyType" ng-model="filter.alloyType" ng-options="k as v for (k, v) in alloyTypes|mandatory"></select>
 			</div>
 		</div>
 		<div class="form-group">
 			<label class="col-md-2 control-label">Тип проката</label>
 			<div class="col-md-6">
-				<select class="form-control" required="" name="rollType" ng-model="filter.rollType" ng-options="k as v for (k, v) in rollTypes"></select>
+				<select class="form-control" required="" name="rollType" ng-model="filter.rollType" ng-options="k as v for (k, v) in rollTypes|mandatory"></select>
 			</div>
 		</div>
 	</fieldset>

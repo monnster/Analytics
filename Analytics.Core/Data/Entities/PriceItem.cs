@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Data.Odbc;
 using LinqToDB.Mapping;
 
 namespace Analytics.Core.Data.Entities
@@ -9,11 +10,17 @@ namespace Analytics.Core.Data.Entities
 		[Column("PriceItemId"), Identity, PrimaryKey, NotNull]
 		public int PriceItemId { get; set; }
 
+		[Column("PriceType"), NotNull]
+		public PriceType PriceType { get; set; }
+
 		[Column("RawMaterialId"), Nullable]
 		public int RawMaterialId { get; set; }
 
 		[Column("PriceExtraId"), Nullable]
 		public int PriceExtraId { get; set; }
+
+		[Column("ProductId"), Nullable]
+		public int ProductId { get; set; }
 
 		[Column("OwnerId"), CanBeNull]
 		public int OwnerId { get; set; }
@@ -32,5 +39,8 @@ namespace Analytics.Core.Data.Entities
 
 		[Association(ThisKey = "OwnerId", OtherKey = "ManufacturerId", CanBeNull = true)]
 		public Manufacturer Owner { get; set; }
+
+		[Association(ThisKey = nameof(ProductId), OtherKey = nameof(ProductId), CanBeNull = true)]
+		public Product Product { get; set; }
 	}
 }

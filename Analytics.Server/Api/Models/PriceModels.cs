@@ -1,15 +1,10 @@
 ﻿using System;
+using Analytics.Core.Data.Entities;
 using Analytics.Core.Data.Enums;
 using Newtonsoft.Json;
 
 namespace Analytics.Server.Api.Models
 {
-	public enum PriceType
-	{
-		RawMaterial,
-		PriceExtra,
-	}
-
 	public class BulkPriceAddModel
 	{
 		public int ManufacturerId { get; set; }
@@ -26,7 +21,8 @@ namespace Analytics.Server.Api.Models
 	{
 		public string[] Columns { get; set; }
 		public string[] Rows { get; set; }
-		public decimal[][] Prices { get; set; }
+		public decimal?[][] Prices { get; set; }
+		public decimal?[][] RetailPrices { get; set; }
 	}
 
 	public class CompetitorPriceFilterModel
@@ -44,8 +40,8 @@ namespace Analytics.Server.Api.Models
 		public int ManufacturerId { get; set; }
 		public string ManufacturerName { get; set; }
 		public bool MultipleProducts { get; set; }
-		public decimal MinPrice { get; set; }
-		public decimal MaxPrice { get; set; }
+		public decimal? MinPrice { get; set; }
+		public decimal? MaxPrice { get; set; }
 	}
 
 	public class PriceFilterModel

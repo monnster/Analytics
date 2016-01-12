@@ -16,13 +16,17 @@ namespace Analytics.Core.Data.Entities
 		[Column("OwnerId"), NotNull, PrimaryKey]
 		public int OwnerId { get; set; }
 
-		[Column("Price"), NotNull]
-		public decimal Price { get; set; }
+		[Column("Price"), Nullable]
+		public decimal? Price { get; set; }
+
+		[Column("RetailPrice"), Nullable]
+		public decimal? RetailPrice { get; set; }
 
 		[Association(ThisKey = nameof(ProductId), OtherKey = nameof(ProductId), CanBeNull = false)]
 		public Product Product { get; set; }
 
 		[Association(ThisKey = nameof(OwnerId), OtherKey = nameof(Manufacturer.ManufacturerId))]
 		public Manufacturer Owner { get; set; }
+
 	}
 }

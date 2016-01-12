@@ -35,6 +35,15 @@
 				}
 			}
 		])
+		.filter('mandatory', [
+			function() {
+				return function (entities) {
+					var copy = ng.copy(entities);
+					delete copy.Undefined;
+					return copy;
+				}
+			}
+		])
 		.filter('manufacturer', [
 			function() {
 				return function (entities, manufacturerId) {
