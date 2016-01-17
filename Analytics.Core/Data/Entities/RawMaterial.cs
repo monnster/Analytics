@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Analytics.Core.Data.Entities
 {
-	[Table("RawMaterials")]
+	[Table("RawMaterial")]
 	public class RawMaterial
 	{
 		[Column("RawMaterialId"), PrimaryKey, Identity, NotNull]

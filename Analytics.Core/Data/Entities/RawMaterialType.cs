@@ -6,7 +6,7 @@ using LinqToDB.Mapping;
 
 namespace Analytics.Core.Data.Entities
 {
-	[Table("RawMaterialTypes")]
+	[Table("RawMaterialType")]
 	public class RawMaterialType
 	{
 		[Column("RawMaterialTypeId"), PrimaryKey, Identity, NotNull]
