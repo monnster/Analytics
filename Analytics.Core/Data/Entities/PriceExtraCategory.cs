@@ -3,7 +3,7 @@ using LinqToDB.Mapping;
 
 namespace Analytics.Core.Data.Entities
 {
-	[Table("PriceExtraCategories")]
+	[Table("PriceExtraCategory")]
 	public class PriceExtraCategory
 	{
 		[Column("PriceExtraCategoryId"), PrimaryKey, Identity, NotNull]

@@ -5,7 +5,7 @@ using LinqToDB.Mapping;
 
 namespace Analytics.Core.Data.Entities
 {
-	[Table("manufacturers")]
+	[Table("Manufacturer")]
 	public class Manufacturer
 	{
 		[Column("ManufacturerId"), Identity, PrimaryKey, NotNull]
