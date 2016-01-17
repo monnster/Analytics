@@ -21,8 +21,15 @@ namespace Analytics.Server.Api.Models
 	{
 		public string[] Columns { get; set; }
 		public string[] Rows { get; set; }
-		public decimal?[][] Prices { get; set; }
-		public decimal?[][] RetailPrices { get; set; }
+		public PriceModel[][] Prices { get; set; }
+	}
+
+	public class PriceModel
+	{
+		public string Name { get; set; }
+		public decimal Thickness { get; set; }
+		public decimal? Price { get; set; }
+		public decimal? RetailPrice { get; set; }
 	}
 
 	public class CompetitorPriceFilterModel
@@ -30,18 +37,18 @@ namespace Analytics.Server.Api.Models
 		public string ProductName { get; set; }
 		public RollType RollType { get; set; }
 		public AlloyType AlloyType { get; set; }
-		public decimal Thickness { get; set; }
 		public int ManufacturerId { get; set; }
 		public DateTime Date { get; set; }
+		public decimal[] Thicknesses { get; set; }
 	}
 
 	public class CompetitorPriceModel
 	{
 		public int ManufacturerId { get; set; }
 		public string ManufacturerName { get; set; }
-		public bool MultipleProducts { get; set; }
-		public decimal? MinPrice { get; set; }
-		public decimal? MaxPrice { get; set; }
+		public int SupplierId { get; set; }
+		public decimal?[] Prices { get; set; }
+
 	}
 
 	public class PriceFilterModel

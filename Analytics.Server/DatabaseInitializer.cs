@@ -12,7 +12,7 @@ namespace Analytics.Server
 			storage.Insert(new Manufacturer { Name = "ЧерМК", IsPrimary = true });
 			storage.Insert(new Manufacturer { Name = "НЛМК", IsPrimary = true });
 			storage.Insert(new Manufacturer { Name = "ММК", IsPrimary = true });
-			storage.Insert(new Manufacturer { Name = "КТЗ", IsPrimary = false });
+			storage.Insert(new Manufacturer { Name = "(1) КТЗ", IsPrimary = false });
 			storage.Insert(new Manufacturer { Name = "(1) РязТЗ", IsPrimary = false });
 			storage.Insert(new Manufacturer { Name = "(1) БТЗ", IsPrimary = false });
 			storage.Insert(new Manufacturer { Name = "(1) ОМК", IsPrimary = false });

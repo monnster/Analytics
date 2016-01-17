@@ -51,8 +51,8 @@ namespace Analytics.Server.Api.Controllers
 			Argument.NotNull(filter, "Pricelist filter is required.");
 
 			var productNames = new List<string>();
-			var productPrices = new List<decimal?[]>();
-			var productRetailPrices = new List<decimal?[]>();
+			var productPrices = new List<PriceModel[]>();
+			//var productRetailPrices = new List<decimal?[]>();
 
 			using (var storage = new Storage())
 			{
@@ -87,26 +87,21 @@ namespace Analytics.Server.Api.Controllers
 							{
 								var product = row.SingleOrDefault(p => p.Thickness == thickness);
 								if (null == product)
-									return 0;
+									return new PriceModel
+									{
+										Price = null,
+										RetailPrice = null,
+									};
 
-								return ProductService.GetProductPrice(product.ProductId, filter.Date);
-							})
-						.ToArray();
-
-					var rowRetailPrices = colNames
-						.Select(
-							thickness =>
-							{
-								var product = row.SingleOrDefault(p => p.Thickness == thickness);
-								if (null == product)
-									return 0;
-
-								return ProductService.GetProductRetailPrice(product.ProductId, filter.Date);
+								return new PriceModel
+								{
+									Price = ProductService.GetProductPrice(product.ProductId, filter.Date),
+									RetailPrice = ProductService.GetProductRetailPrice(product.ProductId, filter.Date),
+								};
 							})
 						.ToArray();
 
 					productPrices.Add(rowPrices);
-					productRetailPrices.Add(rowRetailPrices);
 				}
 
 				return new PricelistModel
@@ -114,7 +109,6 @@ namespace Analytics.Server.Api.Controllers
 					Columns = colNames.Select(p => p.ToString()).ToArray(),
 					Rows = productNames.ToArray(),
 					Prices = productPrices.ToArray(),
-					RetailPrices = productRetailPrices.ToArray(),
 				};
 			}
 		}
@@ -132,9 +126,10 @@ namespace Analytics.Server.Api.Controllers
 				var query = storage
 					.Products
 					.LoadWith(p => p.Manufacturer)
+					.LoadWith(p => p.RawMaterial.Manufacturer)
 					.Where(
 						p => p.ManufacturerId != filter.ManufacturerId
-							&& p.Thickness == filter.Thickness
+							//&& p.Thickness == filter.Thickness
 							&& p.Name == filter.ProductName);
 
 				if (filter.RollType != RollType.Undefined)
@@ -155,21 +150,39 @@ namespace Analytics.Server.Api.Controllers
 
 				var products = query
 					.ToList()
-					.GroupBy(p => p.ManufacturerId);
+					.GroupBy(
+						p => p.Manufacturer.Name == p.RawMaterial.Manufacturer.Name
+							? p.Manufacturer.Name
+							: p.Manufacturer.Name + " (" + p.RawMaterial.Manufacturer.Name + ")"
+					)
+					.OrderBy(p => p.Key);
+					//.OrderBy(p => p.Manufacturer.Name)
+					//.ThenBy(p => p.RawMaterial.Manufacturer.Name)
+					//.ToList();
 
 				foreach (var group in products)
 				{
-					var allPrices = group
-						.Select(p => ProductService.GetProductPrice(p.ProductId, filter.Date))
+					var fullName = group.Key;
+					var first = group.First();
+
+					var prices = filter.Thicknesses
+						.Select(
+							th =>
+							{
+								var product = group.SingleOrDefault(p => p.Thickness == th);
+								if (null == product)
+									return null;
+
+								return ProductService.GetProductPrice(product.ProductId, filter.Date);
+							})
 						.ToArray();
 
 					yield return new CompetitorPriceModel
 					{
-						ManufacturerId = group.Key,
-						ManufacturerName = group.First().Manufacturer.Name,
-						MultipleProducts = allPrices.Length > 1,
-						MinPrice = allPrices.Min(),
-						MaxPrice = allPrices.Max(),
+						ManufacturerId = first.ManufacturerId,
+						ManufacturerName = fullName,
+						SupplierId = first.RawMaterial.Manufacturer.ManufacturerId,
+						Prices = prices,
 					};
 				}
 			}

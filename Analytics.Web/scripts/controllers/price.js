@@ -27,32 +27,44 @@
 		.controller('PriceListCtrl', [
 			'$scope', '$list', '$state', '$notify', 'Manufacturer', 'RawMaterial', 'RawMaterialType', 'Price',
 			function($scope, $list, $state, $notify, Manufacturer, RawMaterial, RawMaterialType, Price) {
-				$scope.pricelist = {};
 				$scope.manufacturers = [];
 				$scope.alloyTypes = $list('alloyTypes');
 				$scope.rollTypes = $list('rollTypes');
 				$scope.priceHistory = null;
-				$scope.competitorPrices = null;
+				$scope.competitors = null;
 				$scope.filter = {
 					manufacturer: {},
 					alloyType: null,
 					rollType: null,
 					date: new Date(),
 				};
-				$scope.activeCell = {
-					x: null,
-					y: null,
+				$scope.activeRow = null;
+
+				$scope.dateFormat = 'dd.MM.yyyy';
+				$scope.dateOptions = {
+					'year-format': "'yy'",
+					'starting-day': 1
 				};
-				$scope.activePrice = null;
 
 				Manufacturer.query(function(data) {
 					$scope.manufacturers = data;
 				});
 
-				$scope.onItemClicked = function(col, row) {
-					$scope.activeCell.x = col;
-					$scope.activeCell.y = row;
-					$scope.activePrice = $scope.data.prices[row][col];
+				$scope.getMargin = function (retail, price) {
+					if (price > 0 && retail > 0) {
+						return retail - price;
+					}
+					return null;
+				}
+
+				$scope.onItemClicked = function (row) {
+					if ($scope.activeRow === row) {
+						$scope.activeRow = null;
+						$scope.competitors = null;
+						return;
+					}
+
+					$scope.activeRow = row;
 					$scope.getCompetitorPrices();
 				};
 
@@ -63,10 +75,9 @@
 						rollType: $scope.filter.rollType,
 						date: $scope.filter.date,
 					}, function (data) {
-						$scope.activeCell.x = null;
-						$scope.activeCell.y = null;
+						$scope.activeRow = null;
 						$scope.activePrice = null;
-						$scope.competitorPrices = null;
+						$scope.competitors = null;
 						$scope.priceHistory = null;
 
 						$scope.data = data;
@@ -75,23 +86,29 @@
 					});
 				}
 
-
-				$scope.getCompetitorPrices = function() {
+				$scope.getCompetitorPrices = function () {
 					var filter = {
-						productName: $scope.data.rows[$scope.activeCell.y],
-						thickness: $scope.data.columns[$scope.activeCell.x],
+						productName: $scope.data.rows[$scope.activeRow],
+						thicknesses: $scope.data.columns,
 						alloyType: $scope.filter.alloyType,
 						rollType: $scope.filter.rollType,
 						date: $scope.filter.date,
 						manufacturerId: $scope.filter.manufacturer.manufacturerId,
 					};
-					console.log($scope.activeCell);
-					console.log($scope.activePrice);
-					Price.getCompetitorPrices(filter, function(data) {
-						$scope.competitorPrices = data;
-					}, function(err) {
+
+
+					Price.getCompetitorPrices(filter, function (data) {
+						$scope.competitors = data;
+					}, function (err) {
 						$notify.error('Ошибка загрузки цен конкурентов.');
 					});
+				};
+
+				$scope.openDate = function ($event) {
+					$event.preventDefault();
+					$event.stopPropagation();
+
+					$scope.openedDate = true;
 				};
 
 			}
