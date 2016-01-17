@@ -23,7 +23,7 @@ namespace Analytics.Server
 			switch (args[0])
 			{
 				case "--init":
-					Init();
+					Init(args);
 					Console.WriteLine("Database initialized.");
 					break;
 
@@ -40,8 +40,14 @@ namespace Analytics.Server
 
 		}
 
-		private static void Init()
+		private static void Init(string[] args)
 		{
+			int plantCode = 1;
+			if (args.Length > 1)
+			{
+				plantCode = int.Parse(args[2]);
+			}
+
 			using (var storage = new Storage())
 			{
 				storage.CreateTable<Manufacturer>();
@@ -53,7 +59,7 @@ namespace Analytics.Server
 				storage.CreateTable<Product>();
 				storage.CreateTable<PriceCache>();
 
-				new DatabaseInitializer().Seed(storage);
+				new DatabaseInitializer().Seed(storage, plantCode);
 			}
 		}
 

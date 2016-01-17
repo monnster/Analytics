@@ -21,7 +21,7 @@ namespace Analytics.Core.Data.Entities
 		[Column("RollType"), NotNull]
 		public RollType RollType { get; set; }
 
-		[Column("Thickness"), NotNull]
+		[Column("Thickness", Precision = 2), NotNull]
 		public decimal Thickness { get; set; }
 
 		[Association(ThisKey = "RawMaterialTypeId", OtherKey = "RawMaterialTypeId", CanBeNull = true)]

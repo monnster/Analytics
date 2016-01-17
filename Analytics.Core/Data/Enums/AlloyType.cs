@@ -7,5 +7,6 @@
 		Regular = 0,
 
 		LowAlloy = 1,
+
 	}
 }
