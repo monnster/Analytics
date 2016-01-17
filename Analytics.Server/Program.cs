@@ -68,8 +68,6 @@ namespace Analytics.Server
 
 				Console.ReadKey();
 			}
-
-
 		}
 
 

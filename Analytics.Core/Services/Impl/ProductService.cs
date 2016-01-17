@@ -118,6 +118,7 @@ namespace Analytics.Core.Services.Impl
 				{
 					var priceItem = new PriceItem
 					{
+						PriceType = PriceType.PriceExtra,
 						PriceExtraId = priceExtraId,
 						Date = date,
 						OwnerId = ownerId,
@@ -160,6 +161,7 @@ namespace Analytics.Core.Services.Impl
 				{
 					var priceItem = new PriceItem
 					{
+						PriceType = PriceType.RawMaterial,
 						RawMaterialId = rawMaterialId,
 						Date = date,
 						OwnerId = ownerId,
@@ -183,6 +185,66 @@ namespace Analytics.Core.Services.Impl
 			}
 		}
 
+
+		public void SetRetailPrice(int productId, DateTime date, decimal price)
+		{
+			Argument.Require(productId > 0, "Price extra id is required.");
+			Argument.Require(date > DateTime.MinValue, "Price date is required.");
+			Argument.Require(price >= 0, "Price should be >= 0");
+
+			using (var storage = new Storage())
+			{
+				var product = storage
+					.Products
+					.LoadWith(p => p.RawMaterial.RawMaterialType)
+					.SingleOrDefault(pe => pe.ProductId == productId);
+
+				if (null == product)
+					throw new InvalidOperationException($"Product with id {productId} not found.");
+
+				var alloyType = product.RawMaterial.RawMaterialType.AlloyType;
+				var rollType = product.RawMaterial.RawMaterialType.RollType;
+
+				if (alloyType == AlloyType.Undefined
+					|| rollType == RollType.Undefined)
+				{
+					throw new InvalidOperationException("Для сохранения цен поля Тип проката и Тип продукта обязательны.");
+				}
+
+
+				var existingPriceItem = storage
+					.PriceItems
+					.SingleOrDefault(
+						pi =>
+							pi.Product.RawMaterial.RawMaterialType.AlloyType == alloyType
+								&& pi.Product.RawMaterial.RawMaterialType.RollType == rollType
+								&& pi.Product.Thickness == product.Thickness
+								&& pi.Product.Name == product.Name
+					);
+					
+
+				if (null != existingPriceItem)
+				{
+					existingPriceItem.Price = price;
+					storage.Update(existingPriceItem);
+				}
+				else
+				{
+					var priceItem = new PriceItem
+					{
+						PriceType = PriceType.RetailPrice,
+						ProductId = productId,
+						Date = date,
+						Price = price,
+					};
+
+					storage.Insert(priceItem);
+				}
+
+				UpdatePriceCache(storage, productId, date);
+			}
+		}
+
 		public ProductWithPrice GetProductWithPrice(int productId, DateTime? date = null)
 		{
 			Argument.Require(productId > 0, "Product identifier is required.");
@@ -201,18 +263,29 @@ namespace Analytics.Core.Services.Impl
 				var productWithPrice = _productMapper.Map(product);
 
 				productWithPrice.Price = GetProductPriceInternal(storage, productId, date.Value);
+				productWithPrice.RetailPrice = GetProductRetailPriceInternal(storage, productId, date.Value);
 
 				return productWithPrice;
 			}
 		}
 
-		public decimal GetProductPrice(int productId, DateTime? date = null)
+		public decimal? GetProductPrice(int productId, DateTime? date = null)
 		{
 			Argument.Require(productId > 0, "Product id is required");
 
 			using (var storage = new Storage())
 			{
 				return GetProductPriceInternal(storage, productId, date ?? DateTime.Today);
+			}
+		}
+
+		public decimal? GetProductRetailPrice(int productId, DateTime? date = null)
+		{
+			Argument.Require(productId > 0, "Product id is required");
+
+			using (var storage = new Storage())
+			{
+				return GetProductRetailPriceInternal(storage, productId, date ?? DateTime.Today);
 			}
 		}
 
@@ -288,16 +361,17 @@ namespace Analytics.Core.Services.Impl
 					.Where(pc => dateFrom <= pc.Date && pc.Date <= dateTo)
 					.OrderBy(pc => pc.Date)
 					.ToList()
+					.Where(pc => pc.Price != null)
 					.Select(pc => new PriceHistory
 					{
 						Date = pc.Date,
-						Price = pc.Price,
+						Price = pc.Price.Value,
 					});
 			}
 
 		}
 
-		private decimal GetProductPriceInternal(Storage storage, int productId, DateTime date)
+		private decimal? GetProductPriceInternal(Storage storage, int productId, DateTime date)
 		{
 			Argument.NotNull(storage, "Storage is required.");
 
@@ -307,7 +381,39 @@ namespace Analytics.Core.Services.Impl
 					.OrderByDescending(p => p.Date)
 					.FirstOrDefault();
 
-			return priceCache?.Price ?? 0;
+			return priceCache?.Price;
+		}
+
+		private decimal? GetProductRetailPriceInternal(Storage storage, int productId, DateTime date)
+		{
+			Argument.NotNull(storage, "Storage is required.");
+
+			var product = storage
+				.Products
+				.LoadWith(p => p.RawMaterial.RawMaterialType)
+				.Where(p => p.ProductId == productId)
+				.Select(
+					p => new
+					{
+						p.Thickness,
+						p.Name,
+						p.RawMaterial.RawMaterialType.AlloyType,
+						p.RawMaterial.RawMaterialType.RollType,
+					})
+				.Single();
+
+			var priceCache = storage
+					.PriceCache
+					.Where(p => 
+						p.Product.Thickness == product.Thickness
+						&& p.Product.RawMaterial.RawMaterialType.AlloyType == product.AlloyType
+						&& p.Product.RawMaterial.RawMaterialType.RollType == product.RollType
+						&& p.Product.Name == product.Name
+						&& p.Date <= date)
+					.OrderByDescending(p => p.Date)
+					.FirstOrDefault();
+
+			return priceCache?.RetailPrice;
 		}
 
 		private void UpdatePriceCache(Storage storage, int productId, DateTime date)
@@ -334,12 +440,13 @@ namespace Analytics.Core.Services.Impl
 		{
 			var product = storage
 				.Products
+				.LoadWith(p => p.RawMaterial.RawMaterialType)
 				.SingleOrDefault(p => p.ProductId == productId);
 
 			if (null == product)
 				throw new InvalidOperationException($"Product with id {productId} not found.");
 
-			var totalPrice = storage
+			decimal? totalPrice = storage
 				.PriceItems
 				.Where(pi => pi.PriceExtra.ProductId == productId && pi.Date <= date)
 				.ToList()
@@ -363,6 +470,38 @@ namespace Analytics.Core.Services.Impl
 				{
 					totalPrice += rawMaterialPrice.Price;
 				}
+				else
+				{
+					totalPrice = 0;
+				}
+			}
+
+			decimal? retailPrice = 0m;
+			var alloyType = product.RawMaterial.RawMaterialType.AlloyType;
+			var rollType = product.RawMaterial.RawMaterialType.RollType;
+
+			if (rollType != RollType.Undefined && alloyType != AlloyType.Undefined)
+			{
+				var retailPriceItem = storage
+					.PriceItems
+					.Where(
+						pi =>
+							pi.Product.RawMaterial.RawMaterialType.AlloyType == alloyType
+								&& pi.Product.RawMaterial.RawMaterialType.RollType == rollType
+								&& pi.Product.Thickness == product.Thickness
+								&& pi.Product.Name == product.Name
+					)
+					.OrderByDescending(pi => pi.Date)
+					.FirstOrDefault();
+
+				if (null != retailPriceItem)
+				{
+					retailPrice = retailPriceItem.Price;
+				}
+				else
+				{
+					retailPrice = null;
+				}
 			}
 
 			var priceCache = new PriceCache
@@ -370,6 +509,7 @@ namespace Analytics.Core.Services.Impl
 				ProductId = productId,
 				Date = date,
 				Price = totalPrice,
+				RetailPrice = retailPrice,
 			};
 
 			storage.InsertOrReplace(priceCache);

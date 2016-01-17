@@ -109,7 +109,6 @@ namespace Analytics.Core.Services.Impl
 			{
 				var lines = raw.Trim().Split('\n');
 				var headers = lines[0].Split('\t');
-				//var prices = lines[1].Split('\t');
 
 				using (var storage = new Storage())
 				{
@@ -123,73 +122,85 @@ namespace Analytics.Core.Services.Impl
 							var thickness = Convert.ToDecimal(headers[colId].FixDecimalSeparator());
 							if (!string.IsNullOrEmpty(prices[colId]))
 							{
-								var rawMaterials = storage
+								var query = storage
 									.RawMaterials
 									.LoadWith(rm => rm.RawMaterialType)
 									.Where(
 										rm => rm.ManufacturerId == supplierId
-											&& rm.RawMaterialType.AlloyType == alloyType
-											&& rm.RawMaterialType.RollType == rollType
-											&& rm.RawMaterialType.Thickness == thickness)
-									.ToList();
+											&& rm.RawMaterialType.Thickness == thickness);
+
+								if (alloyType != AlloyType.Undefined)
+								{
+									query = query.Where(rm => rm.RawMaterialType.AlloyType == alloyType);
+								}
+
+								if (rollType != RollType.Undefined)
+								{
+									query = query.Where(rm => rm.RawMaterialType.RollType == rollType);
+								}
+
+								var rawMaterials = query.ToList();
 
 								if (!rawMaterials.Any())
 								{
 									errors.Add($"Выбранный поставщик не производит материала с такими параметрами и толщиной {thickness}");
 									continue;
 								}
-								if (rawMaterials.Count > 1)
+
+								//if (rawMaterials.Count > 1)
+								//{
+								//	errors.Add(
+								//		$"Выбранный поставщик производит более 1 материала с такими параметрами и толщиной {thickness}, невозможно определить нужный.");
+								//	continue;
+								//}
+
+								foreach (var rawMaterial in rawMaterials)
 								{
-									errors.Add(
-										$"Выбранный поставщик производит более 1 материала с такими параметрами и толщиной {thickness}, невозможно определить нужный.");
-									continue;
-								}
+									var product = storage
+										.Products
+										.SingleOrDefault(
+											p => p.ManufacturerId == manufacturerId
+												&& p.RawMaterialId == rawMaterial.RawMaterialId
+												&& p.Name == productName);
 
-								var rawMaterial = rawMaterials[0];
-
-								var product = storage
-									.Products
-									.SingleOrDefault(
-										p => p.ManufacturerId == manufacturerId
-											&& p.RawMaterialId == rawMaterial.RawMaterialId
-											&& p.Name == productName);
-
-								if (null == product)
-								{
-									product = new Product
+									if (null == product)
 									{
-										ManufacturerId = manufacturerId,
-										RawMaterialId = rawMaterial.RawMaterialId,
-										Thickness = rawMaterial.RawMaterialType.Thickness,
-										Name = productName,
+										product = new Product
+										{
+											ManufacturerId = manufacturerId,
+											RawMaterialId = rawMaterial.RawMaterialId,
+											Thickness = rawMaterial.RawMaterialType.Thickness,
+											Name = productName,
+										};
+									}
+
+									var priceExtra = new PriceExtra
+									{
+										PriceExtraCategoryId = priceExtraCategoryId,
+										ProductId = product.ProductId,
 									};
+
+									var priceItem = new PriceItem
+									{
+										PriceExtraId = priceExtra.PriceExtraId,
+										OwnerId = manufacturerId,
+										Date = date,
+										Price = Convert.ToDecimal(prices[colId].FixDecimalSeparator())
+									};
+
+									priceExtra.PriceItems = new[]
+									{
+										priceItem
+									};
+
+									product.PriceExtras = new[]
+									{
+										priceExtra
+									};
+
+									products.Add(product);
 								}
 
-								var priceExtra = new PriceExtra
-								{
-									PriceExtraCategoryId = priceExtraCategoryId,
-									ProductId = product.ProductId,
-								};
-
-								var priceItem = new PriceItem
-								{
-									PriceExtraId = priceExtra.PriceExtraId,
-									OwnerId = manufacturerId,
-									Date = date,
-									Price = Convert.ToDecimal(prices[colId].FixDecimalSeparator())
-								};
-
-								priceExtra.PriceItems = new[]
-								{
-									priceItem
-								};
-
-								product.PriceExtras = new[]
-								{
-									priceExtra
-								};
-
-								products.Add(product);
 							}
 						}
 					}

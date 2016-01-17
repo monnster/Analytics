@@ -20,13 +20,24 @@
 		<div class="form-group">
 			<label class="col-md-2 control-label">Тип сплава</label>
 			<div class="col-md-6">
-				<select class="form-control" required="" name="alloyType" ng-model="filter.alloyType" ng-options="k as v for (k, v) in alloyTypes"></select>
+				<select class="form-control" required="" name="alloyType" ng-model="filter.alloyType" ng-options="k as v for (k, v) in alloyTypes|mandatory"></select>
 			</div>
 		</div>
 		<div class="form-group">
 			<label class="col-md-2 control-label">Тип проката</label>
 			<div class="col-md-6">
-				<select class="form-control" required="" name="rollType" ng-model="filter.rollType" ng-options="k as v for (k, v) in rollTypes"></select>
+				<select class="form-control" required="" name="rollType" ng-model="filter.rollType" ng-options="k as v for (k, v) in rollTypes|mandatory"></select>
+			</div>
+		</div>
+		<div class="form-group">
+			<label class="col-md-2 control-label">Дата</label>
+			<div class="col-md-6">
+				<p class="input-group">
+					<input type="text" class="form-control" datepicker-popup="{{dateFormat}}" ng-model="filter.date" is-open="openedDate" datepicker-options="dateOptions" ng-required="true" close-text="Закрыть" />
+					<span class="input-group-btn">
+						<button class="btn btn-default" ng-click="openDate($event)"><i class="glyphicon glyphicon-calendar"></i></button>
+					</span>
+				</p>
 			</div>
 		</div>
 	</fieldset>
@@ -46,22 +57,37 @@
 
 <div class="row">
 	<div class="col-md-9">
-		<table class="table table-bordered table-striped" ng-if="data">
+		<table class="table table-bordered table-striped table-hover" ng-if="data">
 			<thead>
-				<tr>
-					<th>Название \ Толщина</th>
-					<th ng-repeat="col in data.columns">
-						{{col}}
-					</th>
-				</tr>
+			<tr>
+				<th>Название \ Толщина</th>
+				<th ng-repeat="col in data.columns">
+					{{col}}
+				</th>
+			</tr>
 			</thead>
-			<tr ng-repeat="row in data.rows track by $index">
-				<td ng-bind="row"></td>
-				<td ng-repeat="prices in data.prices[$index] track by $index"
-					ng-click="onItemClicked($index, $parent.$index)"
-					ng-class="{'success': $parent.$index == activeCell.y && $index == activeCell.x}">
-					{{prices}}
+			<tr ng-repeat-start="row in data.rows track by $index" ng-if="$index == activeRow" class="info">
+				<td>Розничная цена</td>
+				<td ng-repeat="prices in data.prices[$index] track by $index">
+					{{prices.retailPrice}}
 				</td>
+			</tr>
+			<tr>
+				<td ng-bind="row" ng-class="{'success': $index == activeRow}" ng-click="onItemClicked($index)"></td>
+				<td ng-repeat="prices in data.prices[$index] track by $index"
+				    ng-click="onItemClicked($parent.$index)"
+				    ng-class="{'success': $parent.$index == activeRow, 'inactive': activeRow && $parent.$index != activeRow}">
+					{{getMargin(prices.retailPrice, prices.price)}}
+				</td>
+			</tr>
+			<tr ng-repeat="crow in competitors track by $index" ng-if="$parent.$index == activeRow">
+				<td ng-bind="crow.manufacturerName" class="warning"></td>
+				<td ng-repeat="price in competitors[$parent.$index].prices track by $index">
+					{{getMargin(data.prices[activeRow][$index].retailPrice, price)}}
+				</td>
+
+			</tr>
+			<tr ng-repeat-end ng-if="false">
 			</tr>
 		</table>
 	</div>
@@ -73,9 +99,10 @@
 					<th><strong>{{cp.manufacturerName}}</strong></th>
 				</tr>
 			</thead>
-			<tr ng-class="{'danger': cp.minPrice < activePrice, 'success': cp.minPrice > activePrice}">
+			<tr>
 				<td>
-					{{cp.minPrice}}<span ng-if="cp.multipleProducts">&mdash;{{cp.maxPrice}}</span>
+					{{cp.price}}
+					
 				</td>
 			</tr>
 		</table>

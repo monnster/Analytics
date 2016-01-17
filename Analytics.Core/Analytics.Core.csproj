@@ -71,6 +71,7 @@
     <Compile Include="Data\Entities\PriceCache.cs" />
     <Compile Include="Data\Entities\PriceHistory.cs" />
     <Compile Include="Data\Entities\PriceItem.cs" />
+    <Compile Include="Data\Entities\PriceType.cs" />
     <Compile Include="Data\Entities\ProductExt.cs" />
     <Compile Include="Data\Entities\ProductWithPrice.cs" />
     <Compile Include="Data\Enums\AlloyType.cs" />

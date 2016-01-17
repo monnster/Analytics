@@ -17,3 +17,7 @@ body {
 .toolbar-inline {
 	margin-left: 20px;
 }
+
+.inactive {
+	color: #ccc;
+}
