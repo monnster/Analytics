@@ -110,8 +110,52 @@ namespace Analytics.Core.Services.Impl
 				var lines = raw.Trim().Split('\n');
 				var headers = lines[0].Split('\t');
 
+				
 				using (var storage = new Storage())
 				{
+					if (lines.Length == 1 && headers.Length == 1)
+					{
+						var price = Convert.ToDecimal(raw.Trim().FixDecimalSeparator());
+
+						return new BulkProductParseResult
+						{
+							Errors = new string[0],
+							Products = storage
+								.Products
+								.Where(
+									p =>
+										p.ManufacturerId == manufacturerId
+											&& p.RawMaterial.ManufacturerId == supplierId
+											&& (alloyType == AlloyType.Undefined || p.RawMaterial.RawMaterialType.AlloyType == alloyType)
+											&& (rollType == RollType.Undefined || p.RawMaterial.RawMaterialType.RollType == rollType)
+								)
+								.ToList()
+								.Select(
+									p =>
+									{
+										p.PriceExtras = new[]
+										{
+											new PriceExtra
+											{
+												PriceExtraCategoryId = priceExtraCategoryId,
+												PriceItems = new[]
+												{
+													new PriceItem
+													{
+														Date = date,
+														OwnerId = manufacturerId,
+														Price = price,
+													}
+												}
+											}
+										};
+										return p;
+									})
+								.ToArray()
+						};
+					}
+
+
 					for (int lineId = 1; lineId < lines.Length; lineId++)
 					{
 						var prices = lines[lineId].Split('\t');
@@ -147,13 +191,6 @@ namespace Analytics.Core.Services.Impl
 									continue;
 								}
 
-								//if (rawMaterials.Count > 1)
-								//{
-								//	errors.Add(
-								//		$"Выбранный поставщик производит более 1 материала с такими параметрами и толщиной {thickness}, невозможно определить нужный.");
-								//	continue;
-								//}
-
 								foreach (var rawMaterial in rawMaterials)
 								{
 									var product = storage
@@ -182,7 +219,6 @@ namespace Analytics.Core.Services.Impl
 
 									var priceItem = new PriceItem
 									{
-										PriceExtraId = priceExtra.PriceExtraId,
 										OwnerId = manufacturerId,
 										Date = date,
 										Price = Convert.ToDecimal(prices[colId].FixDecimalSeparator())

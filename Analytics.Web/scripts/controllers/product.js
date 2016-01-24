@@ -75,7 +75,7 @@
 						});
 				}
 
-				$scope.filterProducts($scope.filter);
+				//$scope.filterProducts($scope.filter);
 			}
 		])
 		.controller('ProductEditCtrl', [

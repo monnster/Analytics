@@ -69,7 +69,7 @@ namespace Analytics.Server
 								new RawMaterial
 								{
 									ManufacturerId = primaryManufacturer.ManufacturerId,
-									RawMaterialTypeId = (int) materialTypeId,
+									RawMaterialTypeId = (int)(long) materialTypeId,
 								});
 
 							foreach (var productName in EnumerateProductNames(plantCode, rollType, alloyType))
@@ -78,7 +78,7 @@ namespace Analytics.Server
 									new Product
 									{
 										ManufacturerId = primaryManufacturer.ManufacturerId,
-										RawMaterialId = (int)rawMaterialId,
+										RawMaterialId = (int)(long)rawMaterialId,
 										Name = productName,
 										Thickness = thickness,
 									});
@@ -90,7 +90,7 @@ namespace Analytics.Server
 										new Product
 										{
 											ManufacturerId = nonPrimaryManufacturer.ManufacturerId,
-											RawMaterialId = (int)rawMaterialId,
+											RawMaterialId = (int)(long)rawMaterialId,
 											Name = productName,
 											Thickness = thickness,
 										});

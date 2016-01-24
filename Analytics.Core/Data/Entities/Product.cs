@@ -19,7 +19,7 @@ namespace Analytics.Core.Data.Entities
 		[Column("Name"), NotNull]
 		public string Name { get; set; }
 
-		[Column("Thickness", Precision = 2), NotNull]
+		[Column("Thickness", Scale = 10, Precision = 2), NotNull]
 		public decimal Thickness { get; set; }
 
 		#region Associations

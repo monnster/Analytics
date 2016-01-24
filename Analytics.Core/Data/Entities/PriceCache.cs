@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Data.SQLite;
+using System.Security.Cryptography;
 using LinqToDB.Mapping;
 
 namespace Analytics.Core.Data.Entities
@@ -16,10 +17,10 @@ namespace Analytics.Core.Data.Entities
 		[Column("OwnerId"), NotNull, PrimaryKey]
 		public int OwnerId { get; set; }
 
-		[Column("Price"), Nullable]
+		[Column("Price", Scale = 10, Precision = 2), Nullable]
 		public decimal? Price { get; set; }
 
-		[Column("RetailPrice"), Nullable]
+		[Column("RetailPrice", Scale = 10, Precision = 2), Nullable]
 		public decimal? RetailPrice { get; set; }
 
 		[Association(ThisKey = nameof(ProductId), OtherKey = nameof(ProductId), CanBeNull = false)]

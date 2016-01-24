@@ -118,6 +118,7 @@ namespace Analytics.Core.Services.Impl
 				{
 					var priceItem = new PriceItem
 					{
+						ProductId = priceExtra.ProductId,
 						PriceType = PriceType.PriceExtra,
 						PriceExtraId = priceExtraId,
 						Date = date,
