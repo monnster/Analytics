@@ -6,7 +6,7 @@
 
 	ng.module('services', []);
 
-	ng.module('extensions', ['extensions.common']);
+	ng.module('extensions', ['extensions.common', 'extensions.http']);
 
 	ng.module('appAnalytics', ['controllers', 'services', 'extensions', 'ui.router'])
 		.config(['$stateProvider', '$urlRouterProvider',

@@ -89,12 +89,12 @@ namespace Analytics.Core.Services.Impl
 			}
 		}
 
-		public void SetExtraPrice(int priceExtraId, int ownerId, DateTime date, decimal price)
+		public void SetExtraPrice(int priceExtraId, int ownerId, DateTime date, decimal? price)
 		{
 			Argument.Require(priceExtraId > 0, "Price extra id is required.");
 			Argument.Require(ownerId > 0, "Owner id is required.");
 			Argument.Require(date > DateTime.MinValue, "Price date is required.");
-			Argument.Require(price >= 0, "Price should be >= 0");
+			Argument.Require(null == price || price.Value >= 0, "Price should be >= 0");
 
 			using (var storage = new Storage())
 			{
@@ -133,12 +133,12 @@ namespace Analytics.Core.Services.Impl
 			}
 		}
 
-		public void SetMaterialPrice(int rawMaterialId, int ownerId, DateTime date, decimal price)
+		public void SetMaterialPrice(int rawMaterialId, int ownerId, DateTime date, decimal? price)
 		{
 			Argument.Require(rawMaterialId > 0, "Raw material identifier is required.");
 			Argument.Require(ownerId > 0, "Owner identifier is required.");
 			Argument.Require(date > DateTime.MinValue, "Date is required.");
-			Argument.Require(price >= 0, "Price should be >= 0.");
+			Argument.Require(null == price || price.Value >= 0, "Price should be >= 0.");
 
 			using (var storage = new Storage())
 			{
@@ -182,16 +182,15 @@ namespace Analytics.Core.Services.Impl
 				{
 					UpdatePriceCache(storage, productId, date);
 				}
-
 			}
 		}
 
 
-		public void SetRetailPrice(int productId, DateTime date, decimal price)
+		public void SetRetailPrice(int productId, DateTime date, decimal? price)
 		{
 			Argument.Require(productId > 0, "Price extra id is required.");
 			Argument.Require(date > DateTime.MinValue, "Price date is required.");
-			Argument.Require(price >= 0, "Price should be >= 0");
+			Argument.Require(null == price || price.Value >= 0, "Price should be >= 0");
 
 			using (var storage = new Storage())
 			{
@@ -217,7 +216,8 @@ namespace Analytics.Core.Services.Impl
 					.PriceItems
 					.SingleOrDefault(
 						pi =>
-							pi.Product.RawMaterial.RawMaterialType.AlloyType == alloyType
+							pi.PriceType == PriceType.RetailPrice
+								&& pi.Product.RawMaterial.RawMaterialType.AlloyType == alloyType
 								&& pi.Product.RawMaterial.RawMaterialType.RollType == rollType
 								&& pi.Product.Thickness == product.Thickness
 								&& pi.Product.Name == product.Name
@@ -362,7 +362,6 @@ namespace Analytics.Core.Services.Impl
 					.Where(pc => dateFrom <= pc.Date && pc.Date <= dateTo)
 					.OrderBy(pc => pc.Date)
 					.ToList()
-					.Where(pc => pc.Price != null)
 					.Select(pc => new PriceHistory
 					{
 						Date = pc.Date,
@@ -449,7 +448,7 @@ namespace Analytics.Core.Services.Impl
 
 			decimal? totalPrice = storage
 				.PriceItems
-				.Where(pi => pi.PriceExtra.ProductId == productId && pi.Date <= date)
+				.Where(pi => pi.PriceType == PriceType.PriceExtra && pi.PriceExtra.ProductId == productId && pi.Date <= date)
 				.ToList()
 				.GroupBy(p => p.PriceExtraId)
 				.SelectMany(group => group
@@ -463,7 +462,11 @@ namespace Analytics.Core.Services.Impl
 			{
 				var rawMaterialPrice = storage
 					.PriceItems
-					.Where(pi => pi.RawMaterialId == product.RawMaterialId && pi.Date <= date)
+					.Where(pi => 
+						pi.PriceType == PriceType.RawMaterial
+						&& pi.OwnerId == product.ManufacturerId
+						&& pi.RawMaterialId == product.RawMaterialId 
+						&& pi.Date <= date)
 					.OrderByDescending(pi => pi.Date)
 					.FirstOrDefault();
 
@@ -473,7 +476,7 @@ namespace Analytics.Core.Services.Impl
 				}
 				else
 				{
-					totalPrice = 0;
+					totalPrice = null;
 				}
 			}
 
@@ -487,7 +490,8 @@ namespace Analytics.Core.Services.Impl
 					.PriceItems
 					.Where(
 						pi =>
-							pi.Product.RawMaterial.RawMaterialType.AlloyType == alloyType
+							pi.PriceType == PriceType.RetailPrice
+								&& pi.Product.RawMaterial.RawMaterialType.AlloyType == alloyType
 								&& pi.Product.RawMaterial.RawMaterialType.RollType == rollType
 								&& pi.Product.Thickness == product.Thickness
 								&& pi.Product.Name == product.Name

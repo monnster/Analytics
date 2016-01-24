@@ -14,11 +14,11 @@ namespace Analytics.Core.Services.Interfaces
 
 		void RemovePriceExtra(int productId, int priceExtraId, DateTime? date = null);
 
-		void SetExtraPrice(int priceExtraId, int ownerId, DateTime date, decimal price);
+		void SetExtraPrice(int priceExtraId, int ownerId, DateTime date, decimal? price);
 
-		void SetMaterialPrice(int rawMaterialId, int ownerId, DateTime date, decimal price);
+		void SetMaterialPrice(int rawMaterialId, int ownerId, DateTime date, decimal? price);
 
-		void SetRetailPrice(int productId, DateTime date, decimal price);
+		void SetRetailPrice(int productId, DateTime date, decimal? price);
 
 		ProductWithPrice GetProductWithPrice(int productId, DateTime? date = null);
 

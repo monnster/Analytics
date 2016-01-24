@@ -5,6 +5,8 @@ using Newtonsoft.Json;
 
 namespace Analytics.Server.Api.Models
 {
+
+
 	public class BulkPriceAddModel
 	{
 		public int ManufacturerId { get; set; }
@@ -15,6 +17,7 @@ namespace Analytics.Server.Api.Models
 		public int PriceExtraCategoryId { get; set; }
 		public DateTime Date { get; set; }
 		public string Prices { get; set; }
+		public bool Remove { get; set; }
 	}
 
 	public class PricelistModel

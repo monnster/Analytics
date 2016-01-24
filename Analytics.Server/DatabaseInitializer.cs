@@ -14,23 +14,23 @@ namespace Analytics.Server
 			storage.Insert(new Manufacturer { Name = "ЧерМК", IsPrimary = true });
 			storage.Insert(new Manufacturer { Name = "НЛМК", IsPrimary = true });
 			storage.Insert(new Manufacturer { Name = "ММК", IsPrimary = true });
-			storage.Insert(new Manufacturer { Name = "(1) КТЗ", IsPrimary = false });
-			storage.Insert(new Manufacturer { Name = "(1) РязТЗ", IsPrimary = false });
-			storage.Insert(new Manufacturer { Name = "(1) БТЗ", IsPrimary = false });
-			storage.Insert(new Manufacturer { Name = "(1) ОМК", IsPrimary = false });
-			storage.Insert(new Manufacturer { Name = "(1) СЗТЗ", IsPrimary = false });
-			storage.Insert(new Manufacturer { Name = "(1) ТПК Союз", IsPrimary = false });
-			storage.Insert(new Manufacturer { Name = "(1) Машпрофиль", IsPrimary = false });
-			storage.Insert(new Manufacturer { Name = "(1) Профиль А", IsPrimary = false });
-			storage.Insert(new Manufacturer { Name = "(1) БИС", IsPrimary = false });
+			//storage.Insert(new Manufacturer { Name = "(1) КТЗ", IsPrimary = false });
+			//storage.Insert(new Manufacturer { Name = "(1) РязТЗ", IsPrimary = false });
+			//storage.Insert(new Manufacturer { Name = "(1) БТЗ", IsPrimary = false });
+			//storage.Insert(new Manufacturer { Name = "(1) ОМК", IsPrimary = false });
+			//storage.Insert(new Manufacturer { Name = "(1) СЗТЗ", IsPrimary = false });
+			//storage.Insert(new Manufacturer { Name = "(1) ТПК Союз", IsPrimary = false });
+			//storage.Insert(new Manufacturer { Name = "(1) Машпрофиль", IsPrimary = false });
+			//storage.Insert(new Manufacturer { Name = "(1) Профиль А", IsPrimary = false });
+			//storage.Insert(new Manufacturer { Name = "(1) БИС", IsPrimary = false });
 
 			storage.Insert(new Manufacturer { Name = "(2) ВестМет", IsPrimary = false });
-			storage.Insert(new Manufacturer { Name = "(2) Промизделия", IsPrimary = false });
+			//storage.Insert(new Manufacturer { Name = "(2) Промизделия", IsPrimary = false });
 			storage.Insert(new Manufacturer { Name = "(2) ТЭМПО", IsPrimary = false });
-			storage.Insert(new Manufacturer { Name = "(2) ОМК", IsPrimary = false });
-			storage.Insert(new Manufacturer { Name = "(2) ТМК", IsPrimary = false });
-			storage.Insert(new Manufacturer { Name = "(2) Уралтрубпром", IsPrimary = false });
-			storage.Insert(new Manufacturer { Name = "(2) Исаевский ТЗ", IsPrimary = false });
+			//storage.Insert(new Manufacturer { Name = "(2) ОМК", IsPrimary = false });
+			//storage.Insert(new Manufacturer { Name = "(2) ТМК", IsPrimary = false });
+			//storage.Insert(new Manufacturer { Name = "(2) Уралтрубпром", IsPrimary = false });
+			//storage.Insert(new Manufacturer { Name = "(2) Исаевский ТЗ", IsPrimary = false });
 
 			storage.Insert(new PriceExtraCategory { Name = "Себестоимость" });
 			storage.Insert(new PriceExtraCategory { Name = "Доставка материала" });

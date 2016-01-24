@@ -28,6 +28,11 @@
 					'priceExtra': 'Наценка',
 					'retailPrice': 'Розничная цена',
 				};
+
+				data.priceActions = {
+					'add': 'Добавить цену',
+					'remove': 'Удалить цену',
+				}
 			
 				return function (key) {
 					return data[key];

@@ -81,6 +81,7 @@
     <Compile Include="Data\Entities\Product.cs" />
     <Compile Include="Data\Entities\RawMaterial.cs" />
     <Compile Include="Data\Entities\RawMaterialType.cs" />
+    <Compile Include="Data\Enums\PriceAction.cs" />
     <Compile Include="Data\Enums\RollType.cs" />
     <Compile Include="Data\Storage.cs" />
     <Compile Include="ExceptionHelper.cs" />

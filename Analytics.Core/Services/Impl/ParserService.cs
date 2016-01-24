@@ -22,6 +22,7 @@ namespace Analytics.Core.Services.Impl
 			DateTime date,
 			AlloyType alloyType,
 			RollType rollType,
+			bool remove,
 			string raw)
 		{
 			var materials = new List<RawMaterial>();
@@ -29,12 +30,28 @@ namespace Analytics.Core.Services.Impl
 
 			try
 			{
-				var lines = raw.Split('\n');
-				var headers = lines[0].Split('\t');
-				var prices = lines[1].Split('\t');
-
 				using (var storage = new Storage())
 				{
+					if (remove)
+					{
+						var allThickness = storage.RawMaterials
+							.Where(
+								rm => rm.ManufacturerId == supplierId
+									&& (alloyType == AlloyType.Undefined || rm.RawMaterialType.AlloyType == alloyType)
+									&& (rollType == RollType.Undefined || rm.RawMaterialType.RollType == rollType)
+							)
+							.Select(rm => rm.RawMaterialType.Thickness.ToString(CultureInfo.InvariantCulture))
+							.ToList();
+
+						raw = string.Join("\t", allThickness)
+							+ "\n"
+							+ string.Join("\t", allThickness.Select(p => ""));
+					}
+
+					var lines = raw.Split('\n');
+					var headers = lines[0].Split('\t');
+					var prices = lines[1].Split('\t');
+
 					for (int i = 0; i < headers.Length; i++)
 					{
 						var thickness = Convert.ToDecimal(headers[i].FixDecimalSeparator());
@@ -66,13 +83,16 @@ namespace Analytics.Core.Services.Impl
 								RawMaterialId = rawMaterial[0].RawMaterialId,
 								OwnerId = manufacturerId,
 								Date = date,
-								Price = Convert.ToDecimal(prices[i].FixDecimalSeparator())
+								Price = remove 
+									? null 
+									: (decimal?)Convert.ToDecimal(prices[i].FixDecimalSeparator())
 							};
 
 							rawMaterial[0].PriceItems = new[]
 							{
 								priceItem
 							};
+
 							materials.Add(rawMaterial[0]);
 						}
 					}
@@ -100,14 +120,20 @@ namespace Analytics.Core.Services.Impl
 			AlloyType alloyType,
 			RollType rollType,
 			int priceExtraCategoryId,
+			bool remove,
 			string raw)
 		{
 			var products = new List<Product>();
 			var errors = new List<string>();
 
+			if (remove)
+			{
+				raw = "0";
+			}
+
 			try
 			{
-				var lines = raw.Trim().Split('\n');
+				var lines = raw.Split(new [] {'\n'}, StringSplitOptions.RemoveEmptyEntries);
 				var headers = lines[0].Split('\t');
 
 				
@@ -164,77 +190,85 @@ namespace Analytics.Core.Services.Impl
 						for (int colId = 1; colId < headers.Length; colId++)
 						{
 							var thickness = Convert.ToDecimal(headers[colId].FixDecimalSeparator());
-							if (!string.IsNullOrEmpty(prices[colId]))
-							{
-								var query = storage
+
+							var query = storage
 									.RawMaterials
 									.LoadWith(rm => rm.RawMaterialType)
 									.Where(
 										rm => rm.ManufacturerId == supplierId
 											&& rm.RawMaterialType.Thickness == thickness);
 
-								if (alloyType != AlloyType.Undefined)
+							if (alloyType != AlloyType.Undefined)
+							{
+								query = query.Where(rm => rm.RawMaterialType.AlloyType == alloyType);
+							}
+
+							if (rollType != RollType.Undefined)
+							{
+								query = query.Where(rm => rm.RawMaterialType.RollType == rollType);
+							}
+
+							var rawMaterials = query.ToList();
+
+							if (!rawMaterials.Any())
+							{
+								errors.Add($"Выбранный поставщик не производит материала с такими параметрами и толщиной {thickness}");
+								continue;
+							}
+
+							foreach (var rawMaterial in rawMaterials)
+							{
+								var product = storage
+									.Products
+									.SingleOrDefault(
+										p => p.ManufacturerId == manufacturerId
+											&& p.RawMaterialId == rawMaterial.RawMaterialId
+											&& p.Name == productName);
+
+								if (null == product)
 								{
-									query = query.Where(rm => rm.RawMaterialType.AlloyType == alloyType);
+									product = new Product
+									{
+										ManufacturerId = manufacturerId,
+										RawMaterialId = rawMaterial.RawMaterialId,
+										Thickness = rawMaterial.RawMaterialType.Thickness,
+										Name = productName,
+									};
 								}
 
-								if (rollType != RollType.Undefined)
+								var priceExtra = new PriceExtra
 								{
-									query = query.Where(rm => rm.RawMaterialType.RollType == rollType);
-								}
+									PriceExtraCategoryId = priceExtraCategoryId,
+									ProductId = product.ProductId,
+								};
 
-								var rawMaterials = query.ToList();
+								var price = string.IsNullOrEmpty(prices[colId])
+									? null
+									: (decimal?)Convert.ToDecimal(prices[colId].FixDecimalSeparator());
 
-								if (!rawMaterials.Any())
+								var priceItem = new PriceItem
 								{
-									errors.Add($"Выбранный поставщик не производит материала с такими параметрами и толщиной {thickness}");
-									continue;
-								}
+									OwnerId = manufacturerId,
+									Date = date,
+									Price = remove ? null : price,
+								};
 
-								foreach (var rawMaterial in rawMaterials)
+								priceExtra.PriceItems = new[]
 								{
-									var product = storage
-										.Products
-										.SingleOrDefault(
-											p => p.ManufacturerId == manufacturerId
-												&& p.RawMaterialId == rawMaterial.RawMaterialId
-												&& p.Name == productName);
+									priceItem
+								};
 
-									if (null == product)
-									{
-										product = new Product
-										{
-											ManufacturerId = manufacturerId,
-											RawMaterialId = rawMaterial.RawMaterialId,
-											Thickness = rawMaterial.RawMaterialType.Thickness,
-											Name = productName,
-										};
-									}
+								product.PriceExtras = new[]
+								{
+									priceExtra
+								};
 
-									var priceExtra = new PriceExtra
-									{
-										PriceExtraCategoryId = priceExtraCategoryId,
-										ProductId = product.ProductId,
-									};
+								products.Add(product);
 
-									var priceItem = new PriceItem
-									{
-										OwnerId = manufacturerId,
-										Date = date,
-										Price = Convert.ToDecimal(prices[colId].FixDecimalSeparator())
-									};
 
-									priceExtra.PriceItems = new[]
-									{
-										priceItem
-									};
-
-									product.PriceExtras = new[]
-									{
-										priceExtra
-									};
-
-									products.Add(product);
+								if (!string.IsNullOrEmpty(prices[colId]))
+							{
+								
 								}
 
 							}

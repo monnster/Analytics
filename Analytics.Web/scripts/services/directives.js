@@ -124,4 +124,72 @@
 			}
 		]);
 
+	ng.module('extensions.http', [], ['$httpProvider', '$provide', function ($httpProvider, $provide) {
+		$provide.factory('spinnerHttpInterceptor', ['$rootScope', '$q', '$window', '$timeout', function ($rootScope, $q, $window, $timeout) {
+			if (!$window['NProgress']) {
+				$window.NProgress = {
+					start: function () { },
+					done: function () { }
+				};
+			}
+
+			var requests = 0;
+			var timer = false;
+
+			return {
+				'request': function (config) {
+					if (requests == 0) {
+						timer = $timeout(function () {
+							NProgress.start();
+						}, 1000);
+
+						$rootScope.loading = true;
+					}
+
+					requests++;
+
+					return config || $q.when(config);
+				},
+
+				'response': function (config) {
+
+					if (--requests == 0) {
+						$timeout.cancel(timer);
+
+						NProgress.done();
+						$rootScope.loading = false;
+					}
+
+					return config || $q.when(config);
+				},
+
+				'responseError': function (rejection) {
+					if (--requests == 0) {
+						$timeout.cancel(timer);
+
+						NProgress.done();
+						$rootScope.loading = false;
+					}
+
+					return $q.reject(rejection);
+				}
+			};
+		}]);
+
+		$provide.factory('authHttpInterceptor', ['$q', function ($q) {
+			return {
+				'responseError': function (rejection) {
+					if (rejection.status == 401) {
+						document.location.href = '/hello';
+					}
+					return $q.reject(rejection);
+				}
+			};
+		}]);
+
+		$httpProvider.interceptors.push('spinnerHttpInterceptor');
+		$httpProvider.interceptors.push('authHttpInterceptor');
+
+	}]);
+
 })(angular, jQuery);

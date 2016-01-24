@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -24,7 +25,6 @@ namespace Analytics.Server
 			{
 				case "--init":
 					Init(args);
-					Console.WriteLine("Database initialized.");
 					break;
 
 				case "--run":
@@ -48,6 +48,9 @@ namespace Analytics.Server
 				plantCode = int.Parse(args[2]);
 			}
 
+			var sw = new Stopwatch();
+			sw.Start();
+
 			using (var storage = new Storage())
 			{
 				storage.CreateTable<Manufacturer>();
@@ -61,6 +64,9 @@ namespace Analytics.Server
 
 				new DatabaseInitializer().Seed(storage, plantCode);
 			}
+
+			sw.Stop();
+			Console.WriteLine("Init done in {0}", sw.Elapsed);
 		}
 
 		private static void StartServer()

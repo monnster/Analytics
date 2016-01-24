@@ -122,6 +122,7 @@
 				$scope.alloyTypes = $list('alloyTypes');
 				$scope.rollTypes = $list('rollTypes');
 				$scope.priceTypes = $list('priceTypes');
+				$scope.priceActions = $list('priceActions');
 
 				$scope.dateFormat = 'dd.MM.yyyy';
 				$scope.dateOptions = {
@@ -138,6 +139,7 @@
 					priceType: null,
 					date: new Date(),
 					prices: '',
+					priceAction: 'add',
 				};
 
 
@@ -172,7 +174,9 @@
 							: 0,
 						date: settings.date,
 						prices: settings.prices,
+						remove: settings.priceAction == 'remove',
 					};
+
 
 					Price.storePrices(data, function(response) {
 						$notify.success('Цены сохранены.');

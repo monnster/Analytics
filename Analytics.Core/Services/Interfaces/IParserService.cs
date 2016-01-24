@@ -12,6 +12,7 @@ namespace Analytics.Core.Services.Interfaces
 			DateTime date,
 			AlloyType alloyType,
 			RollType rollType,
+			bool remove,
 			string raw);
 
 		BulkProductParseResult ParseExtraPricesBulk(
@@ -21,6 +22,7 @@ namespace Analytics.Core.Services.Interfaces
 			AlloyType alloyType,
 			RollType rollType,
 			int priceExtraCategoryId,
+			bool remove,
 			string raw
 			);
 	}

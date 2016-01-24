@@ -29,7 +29,7 @@ namespace Analytics.Core.Data.Entities
 		public DateTime Date { get; set; }
 
 		[Column("Price", Scale = 10, Precision = 2), NotNull]
-		public decimal Price { get; set; }
+		public decimal? Price { get; set; }
 
 		[Association(ThisKey = "RawMaterialId", OtherKey = "RawMaterialId", CanBeNull = true)]
 		public RawMaterial RawMaterial { get; set; }

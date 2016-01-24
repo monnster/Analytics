@@ -46,17 +46,36 @@
 				<label class="col-md-2 control-label">Дата</label>
 				<div class="col-md-6">
 					<p class="input-group">
-						<input type="text" class="form-control" datepicker-popup="{{dateFormat}}" ng-model="settings.date" is-open="openedDate" datepicker-options="dateOptions" ng-required="true" close-text="Закрыть" />
+						<input type="text" class="form-control" datepicker-popup="{{dateFormat}}" ng-model="settings.date" is-open="openedDate" datepicker-options="dateOptions" ng-required="true" close-text="Закрыть"/>
 						<span class="input-group-btn">
 							<button class="btn btn-default" ng-click="openDate($event)"><i class="glyphicon glyphicon-calendar"></i></button>
 						</span>
 					</p>
 				</div>
 			</div>
-			<div class="form-group" ng-class="{'has-error': settingsForm.prices.$invalid}">
+			<div class="form-group">
+				<div class="col-md-offset-2 col-md-6">
+					<div class="radio">
+						<label>
+							<input type="radio" name="priceAction" id="actionAdd" value="add" ng-model="settings.priceAction" checked>
+							Добавить цены
+						</label>
+					</div>
+					<div class="radio">
+						<label>
+							<input type="radio" name="priceAction" id="actionRemove" value="remove" ng-model="settings.priceAction">
+							Удалить цены
+						</label>
+					</div>
+				</div>
+				
+
+
+			</div>
+			<div class="form-group" ng-if="settings.priceAction == 'add'" ng-class="{'has-error': settingsForm.prices.$invalid}">
 				<label class="col-md-2 control-label">Цены</label>
 				<div class="col-md-6">
-					<textarea class="form-control" name="prices" required="" ng-model="settings.prices" ng-change="onPricesEdited()" rows="5"></textarea>
+					<textarea class="form-control" name="prices" required="" ng-model="settings.prices" ng-change="onPricesEdited()" rows="5" ng-trim="false"></textarea>
 				</div>
 			</div>
 

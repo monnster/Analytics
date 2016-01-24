@@ -58,6 +58,7 @@ namespace Analytics.Server.Api.Controllers
 			{
 				var products = storage
 					.Products
+					.LoadWith(p => p.RawMaterial.Manufacturer)
 					.Where(
 						p => p.ManufacturerId == filter.ManufacturerId
 							&& p.RawMaterial.RawMaterialType.AlloyType == filter.AlloyType
@@ -66,7 +67,9 @@ namespace Analytics.Server.Api.Controllers
 						p => new
 						{
 							ProductId = p.ProductId,
-							Name = p.Name,
+							Name = p.ManufacturerId == p.RawMaterial.Manufacturer.ManufacturerId
+								? p.Name
+								: $"{p.Name} ({p.RawMaterial.Manufacturer.Name})",
 							Thickness = p.Thickness,
 							Price = 0,
 						})
@@ -80,7 +83,6 @@ namespace Analytics.Server.Api.Controllers
 
 				foreach (var row in products.GroupBy(p => p.Name))
 				{
-					productNames.Add(row.Key);
 					var rowPrices = colNames
 						.Select(
 							thickness =>
@@ -101,7 +103,11 @@ namespace Analytics.Server.Api.Controllers
 							})
 						.ToArray();
 
-					productPrices.Add(rowPrices);
+					if (rowPrices.All(p => null != p))
+					{
+						productNames.Add(row.Key);
+						productPrices.Add(rowPrices);
+					}
 				}
 
 				return new PricelistModel
@@ -177,13 +183,16 @@ namespace Analytics.Server.Api.Controllers
 							})
 						.ToArray();
 
-					yield return new CompetitorPriceModel
+					if (prices.All(p => null != p && p > 0))
 					{
-						ManufacturerId = first.ManufacturerId,
-						ManufacturerName = fullName,
-						SupplierId = first.RawMaterial.Manufacturer.ManufacturerId,
-						Prices = prices,
-					};
+						yield return new CompetitorPriceModel
+						{
+							ManufacturerId = first.ManufacturerId,
+							ManufacturerName = fullName,
+							SupplierId = first.RawMaterial.Manufacturer.ManufacturerId,
+							Prices = prices,
+						};
+					}
 				}
 			}
 		}
@@ -197,6 +206,7 @@ namespace Analytics.Server.Api.Controllers
 						model.AlloyType,
 						model.RollType,
 						model.PriceExtraCategoryId,
+						model.Remove,
 						model.Prices);
 
 			if (priceExtraResult.Errors.Any())
@@ -221,7 +231,7 @@ namespace Analytics.Server.Api.Controllers
 
 				var priceExtra = ProductService.AddPriceExtra(productId, extra.PriceExtraCategoryId);
 
-				ProductService.SetExtraPrice(priceExtra.PriceExtraId, model.ManufacturerId, model.Date, priceItem.Price);
+				ProductService.SetExtraPrice(priceExtra.PriceExtraId, model.ManufacturerId, model.Date, model.Remove ? null : priceItem.Price);
 			}
 		}
 
@@ -234,6 +244,7 @@ namespace Analytics.Server.Api.Controllers
 						model.Date,
 						model.AlloyType,
 						model.RollType,
+						model.Remove,
 						model.Prices);
 
 			if (materialsResult.Errors.Any())
@@ -247,7 +258,7 @@ namespace Analytics.Server.Api.Controllers
 
 				var priceItem = material.PriceItems.Single();
 
-				ProductService.SetMaterialPrice(materialId, model.ManufacturerId, model.Date, priceItem.Price);
+				ProductService.SetMaterialPrice(materialId, model.ManufacturerId, model.Date, model.Remove ? null : priceItem.Price);
 			}
 		}
 
@@ -261,6 +272,7 @@ namespace Analytics.Server.Api.Controllers
 						model.AlloyType,
 						model.RollType,
 						model.PriceExtraCategoryId,
+						model.Remove,
 						model.Prices);
 
 			if (priceExtraResult.Errors.Any())
@@ -283,7 +295,7 @@ namespace Analytics.Server.Api.Controllers
 				var extra = product.PriceExtras.Single();
 				var priceItem = extra.PriceItems.Single();
 
-				ProductService.SetRetailPrice(productId, model.Date, priceItem.Price);
+				ProductService.SetRetailPrice(productId, model.Date, model.Remove ? null : priceItem.Price);
 			}
 		}
 	}
