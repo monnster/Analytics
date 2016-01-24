@@ -17,10 +17,10 @@ namespace Analytics.Core.Data.Entities
 		[Column("OwnerId"), NotNull, PrimaryKey]
 		public int OwnerId { get; set; }
 
-		[Column("Price", Scale = 10, Precision = 2), Nullable]
+		[Column("Price", Scale = 2, Precision = 10), Nullable]
 		public decimal? Price { get; set; }
 
-		[Column("RetailPrice", Scale = 10, Precision = 2), Nullable]
+		[Column("RetailPrice", Scale = 2, Precision = 10), Nullable]
 		public decimal? RetailPrice { get; set; }
 
 		[Association(ThisKey = nameof(ProductId), OtherKey = nameof(ProductId), CanBeNull = false)]
