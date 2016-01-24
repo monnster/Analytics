@@ -33,7 +33,7 @@ namespace Analytics.Core.Services.Impl
 
 			using (var storage = new Storage())
 			{
-				product.ProductId = (int)(long)storage.InsertWithIdentity(product);
+				product.ProductId = Convert.ToInt32(storage.InsertWithIdentity(product));
 			}
 
 			return product;
@@ -58,7 +58,7 @@ namespace Analytics.Core.Services.Impl
 
 				if (null == existingExtra)
 				{
-					priceExtra.PriceExtraId = (int) (long) storage.InsertWithIdentity(priceExtra);
+					priceExtra.PriceExtraId = Convert.ToInt32(storage.InsertWithIdentity(priceExtra));
 				}
 				else
 				{
