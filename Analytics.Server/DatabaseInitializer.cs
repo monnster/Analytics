@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Analytics.Core.Data;
 using Analytics.Core.Data.Entities;
@@ -69,7 +70,7 @@ namespace Analytics.Server
 								new RawMaterial
 								{
 									ManufacturerId = primaryManufacturer.ManufacturerId,
-									RawMaterialTypeId = (int)(long) materialTypeId,
+									RawMaterialTypeId = Convert.ToInt32(materialTypeId),
 								});
 
 							foreach (var productName in EnumerateProductNames(plantCode, rollType, alloyType))
@@ -78,7 +79,7 @@ namespace Analytics.Server
 									new Product
 									{
 										ManufacturerId = primaryManufacturer.ManufacturerId,
-										RawMaterialId = (int)(long)rawMaterialId,
+										RawMaterialId = Convert.ToInt32(rawMaterialId),
 										Name = productName,
 										Thickness = thickness,
 									});
@@ -90,7 +91,7 @@ namespace Analytics.Server
 										new Product
 										{
 											ManufacturerId = nonPrimaryManufacturer.ManufacturerId,
-											RawMaterialId = (int)(long)rawMaterialId,
+											RawMaterialId = Convert.ToInt32(rawMaterialId),
 											Name = productName,
 											Thickness = thickness,
 										});
